@@ -1,6 +1,6 @@
+import chromadb
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import chromadb
 
 # setting the environment
 
@@ -9,7 +9,10 @@ CHROMA_PATH = r"chroma_db"
 
 chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
 
-collection = chroma_client.get_or_create_collection(name="growing_vegetables")
+collection = chroma_client.get_or_create_collection(
+    name="growing_vegetables",
+    metadata={"hnsw:num_threads": 1},
+)
 
 # loading the document
 
@@ -38,7 +41,7 @@ i = 0
 
 for chunk in chunks:
     documents.append(chunk.page_content)
-    ids.append("ID"+str(i))
+    ids.append("ID" + str(i))
     metadata.append(chunk.metadata)
 
     i += 1
@@ -46,8 +49,5 @@ for chunk in chunks:
 # adding to chromadb
 
 
-collection.upsert(
-    documents=documents,
-    metadatas=metadata,
-    ids=ids
-)
+collection.upsert(documents=documents, metadatas=metadata, ids=ids)
+
